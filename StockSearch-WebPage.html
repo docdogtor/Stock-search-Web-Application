@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/data.js"></script>
+<script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
+<script language=javascript>
+    function searchdata(){
+        if (document.getElementById("stock").value == "") {
+            return
+        }
+        
+        var req1 = new XMLHttpRequest();
+        var host = "https://stock-search-anxin.wn.r.appspot.com/";
+        var url1 = host + "search/" + document.getElementById("stock").value;
+        var ticker_text
+        
+        req1.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                ticker_text = JSON.parse(this.responseText);
+                if (ticker_text.hasOwnProperty("ticker")){
+                    document.getElementById("error_inf").style.display = "none";
+                    document.getElementById("table3").style.display="none";
+                    document.getElementById("table2").style.display="none";
+                    document.getElementById("container").style.display="none";
+                    document.getElementById("table1").style.display="none";
+                    document.getElementById("buttonc").style.backgroundColor = "#F8F8F8";
+                    document.getElementById("buttonss").style.backgroundColor = "#F8F8F8";
+                    document.getElementById("buttonln").style.backgroundColor = "#F8F8F8";
+                    document.getElementById("buttonco").style.backgroundColor = "#CCCCCC";
+                    document.getElementById("four").style.display = "block";
+                    document.getElementById("table1").style.display = "initial";
+                    
+                    document.getElementById("symbol").innerHTML=ticker_text.ticker;
+                    
+                    if (ticker_text.name != null) {
+                        document.getElementById("companyname").innerHTML=ticker_text.name;}
+                    else {document.getElementById("companyname").innerHTML="";}
+                    
+                    if (ticker_text.exchangeCode != null) {
+                        document.getElementById("exchangecode").innerHTML=ticker_text.exchangeCode;}
+                    else {document.getElementById("exchangecode").innerHTML="";}
+                    
+                    if (ticker_text.startDate != null) {
+                        document.getElementById("startdate").innerHTML=ticker_text.startDate;}
+                    else {document.getElementById("startdate").innerHTML="";}
+                    
+                    if (ticker_text.description != null) {
+                        document.getElementById("description").innerHTML=ticker_text.description;}
+                    else {document.getElementById("description").innerHTML=""}
+                    
+                    }
+                else {
+                    document.getElementById("four").style.display = "none";
+                    document.getElementById("table3").style.display="none";
+                    document.getElementById("table2").style.display="none";
+                    document.getElementById("container").style.display="none";
+                    document.getElementById("table2").style.display="none";
+                    document.getElementById("table1").style.display = "none";
+                    document.getElementById("error_inf").style.display = "block";
+                }
+            }
+        }
+        req1.open("GET", url1, true)
+        req1.send();
+        
+        var req2 = new XMLHttpRequest();
+        var url2 = host + "summary/" + document.getElementById("stock").value;
+        
+        req2.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                summary_text = JSON.parse(this.responseText);
+                if (summary_text[0].hasOwnProperty("ticker")){
+                    document.getElementById("symbol2").innerHTML=summary_text[0].ticker;
+                    
+                    if (summary_text[0].timestamp != null) {
+                         myDate = new Date(summary_text[0].timestamp);
+                         localMD = myDate.toLocaleString('en-GB');
+                         document.getElementById("timestamp").innerHTML= localMD.substring(6,10) + "-" + localMD.substring(3,5) + "-" + localMD.substring(0,2);   
+                    }
+                    else {document.getElementById("timestamp").innerHTML= ""}
+                    
+                    if (summary_text[0].prevClose != null) {
+                        document.getElementById("prevclose").innerHTML=summary_text[0].prevClose;}
+                    else {document.getElementById("prevclose").innerHTML="";}
+                    
+                    if (summary_text[0].open != null) {
+                        document.getElementById("open").innerHTML=summary_text[0].open;}
+                    else {document.getElementById("open").innerHTML="";}
+                    
+                    if (summary_text[0].high != null) {
+                        document.getElementById("high").innerHTML=summary_text[0].high;}
+                    else {document.getElementById("high").innerHTML="";}
+                    
+                    if (summary_text[0].low != null) {
+                        document.getElementById("low").innerHTML=summary_text[0].low;}
+                    else {document.getElementById("low").innerHTML="";}
+                    
+                    if (summary_text[0].last != null) {
+                        document.getElementById("last").innerHTML=summary_text[0].last;}
+                    else {document.getElementById("last").innerHTML="";}
+                    
+                    if ((summary_text[0].last != null) && (summary_text[0].prevClose != null)) {
+                        changenumber = summary_text[0].last-summary_text[0].prevClose;
+                        if (changenumber < 0) {
+                            arrowfigure = "<img src=\"https://csci571.com/hw/hw6/images/RedArrowDown.jpg\" width=\"15px\" height=\"15px\">"; 
+                        }
+                        else if (changenumber > 0) {
+                            arrowfigure = "<img src=\"https://csci571.com/hw/hw6/images/GreenArrowUp.jpg\" width=\"15px\" height=\"15px\">";
+                        }
+                        else {
+                            arrowfigure = "";
+                        }
+                        document.getElementById("change").innerHTML=(changenumber).toFixed(2) + "&nbsp&nbsp" + arrowfigure;
+                        changepercent = changenumber/summary_text[0].prevClose*100;
+                        document.getElementById("changepercent").innerHTML=(changepercent).toFixed(2) + "%&nbsp&nbsp" + arrowfigure;
+                    }
+                    else {
+                        document.getElementById("change").innerHTML="";
+                        document.getElementById("changepercent").innerHTML="";
+                    }
+                    
+                    if (summary_text[0].volume != null) {
+                        document.getElementById("volume").innerHTML=summary_text[0].volume;}
+                    else {document.getElementById("volume").innerHTML=""}
+                }
+            }
+        }
+        req2.open("GET", url2, true)
+        req2.send();
+        
+        var req3 = new XMLHttpRequest();
+        var url3 = host + "news/" + document.getElementById("stock").value;
+        var i, j, image, link, news_text;
+        
+        req3.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                news_text = JSON.parse(this.responseText);
+                news_num = 5;
+                
+                if (news_text.articles.length < 5){
+                    news_num = news_text.articles.length;
+                }
+                
+                for (j = 0; j < 5; j++) {
+                     document.getElementById("line"+j).style.display="none";
+                }
+                
+                for (i = 0; i < news_num; i++) {
+                    document.getElementById("line"+i).style.display="block";
+                    
+                    image = news_text.articles[i].urlToImage;
+                    document.getElementById("news"+i).innerHTML = "<img src=" + image + " onerror=\"this.src='https://www.teknozeka.com/wp-content/uploads/2020/08/wp-header-logo.png'\" width=\"75px\" height=\"75px\" >";
+                    
+                    document.getElementById("title"+i).innerHTML = news_text.articles[i].title;
+                    
+                    publishedTime = new Date(news_text.articles[i].publishedAt);
+                    localPT = publishedTime.toLocaleString('en-GB');
+                    document.getElementById("publishedat"+i).innerHTML = "Published Date: "+ localPT.substring(3,5) + "/" + localPT.substring(0,2) + "/" + localPT.substring(6,10);
+                    
+                    link = news_text.articles[i].url;
+                    document.getElementById("link"+i).innerHTML = "<a href=\""+ link +"\" target=\"_blank\">See Original Post</a>"
+                } 
+            }
+        }
+        req3.open("GET", url3, true);
+        req3.send();
+        
+        var req4 = new XMLHttpRequest();
+        var url4 = host + "chart/" + document.getElementById("stock").value;
+        var i, image, link, chart_text;
+        var close_value=[];
+        var volume_value=[];
+        var gmtTime, pdtTime;
+        
+        req4.onreadystatechange = function() {
+            ticker_name = document.getElementById("stock").value.toUpperCase();
+            if (this.readyState == 4 && this.status == 200) {
+                chart_text = JSON.parse(this.responseText);
+                
+				for (i=0;i<chart_text.length;i++){
+                    gmtTime = chart_text[i].date;
+                    pdtTime = new Date(gmtTime.toLocaleString());
+					localTime = Date.UTC(pdtTime.getFullYear(),pdtTime.getMonth(),pdtTime.getDate(),pdtTime.getHours(),pdtTime.getMinutes());
+					close_value.push([localTime,chart_text[i].close]);
+					volume_value.push([localTime,chart_text[i].volume]);
+				}
+                
+                var date_value = new Date();
+                date_value.setMonth(date_value.getMonth()+1);
+                Highcharts.stockChart('container',{
+					title:{
+						text: "Stock Price " + document.getElementById("stock").value.toUpperCase() + " " + date_value.getFullYear() + "-" + ("0" + date_value.getMonth()).slice(-2) + "-" + ("0" + date_value.getDate()).slice(-2)
+					},
+                    subtitle: {
+                        text: '<a href="https://api.tiingo.com/" target="_blank">Source: Tiingo</a>',
+                        useHTML: true,
+                        y: 40
+                    },
+
+					xAxis: {
+      					gapGridLineWidth: 10
+    				},
+                    
+    				yAxis:[{
+    					opposite:false,
+    					labels: {
+			                align: 'right',
+			                x: -8
+			            },
+			            title: {
+			                text: 'Stock Price',
+                            x: 5
+			            },
+			            lineWidth: 2,
+			            resize: {
+			                enabled: true
+			            }
+    				    },{
+    					opposite:true,
+    					labels: {
+    						align: 'left',
+    						x: 8
+    					},
+    					title:{
+    						text:'Volume',
+                            x: -5
+    					},
+    					lineWidth: 2,
+    					resize:{
+    						enabled:true
+    					}
+    				}],
+                    
+    				rangeSelector:{
+    					buttons: [{
+					        type: 'day',
+					        count: 7,
+					        text: '7d'
+					      }, {
+					        type: 'day',
+					        count: 15,
+					        text: '15d'
+					      }, {
+					        type: 'month',
+					        count: 1,
+					        text: '1m'
+					      }, {
+					      	type: 'month',
+					      	count: 3,
+					      	text: '3m'
+					      }, {
+					      	type:'all',
+					      	count:1,
+					      	text:'6m'
+					      }],
+					      selected: 1,
+					      inputEnabled: false
+    				},
+                    
+    				series: [{
+				      name: document.getElementById("stock").value.toUpperCase(),
+				      type: 'area',
+				      data: close_value,
+				      gapSize: 5,
+				      tooltip: {
+				        valueDecimals: 2
+				      },
+				      fillColor: {
+				        linearGradient: {
+				          x1: 0,
+				          y1: 0,
+				          x2: 0,
+				          y2: 1
+				        },
+				        stops: [
+				          [0, Highcharts.getOptions().colors[0]],
+				          [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+				        ]
+				      },
+      				  threshold: null
+    				},{
+    					name: ticker_name+"  "+'Volume',
+    					type:'column',
+    					data:volume_value,
+    					yAxis:1
+    				}],
+    				plotOptions:{
+    					column:{
+    						maxPointWidth: 2    					
+    					}
+    				}
+				});
+				
+			}
+
+            }
+        req4.open("GET", url4, true)
+        req4.send();
+    }
+    
+    function searchoutlook(){
+        document.getElementById("container").style.display="none";
+        document.getElementById("table3").style.display="none";
+        document.getElementById("error_inf").style.display = "none";
+        document.getElementById("table2").style.display="none";
+        document.getElementById("buttonln").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonss").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonc").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonco").style.backgroundColor = "#CCCCCC";
+        document.getElementById("table1").style.display="initial";
+    }
+       
+    function searchstock(){
+        document.getElementById("container").style.display="none";
+        document.getElementById("table3").style.display="none";
+        document.getElementById("error_inf").style.display = "none";
+        document.getElementById("table1").style.display="none";
+        document.getElementById("buttonco").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonln").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonc").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonss").style.backgroundColor = "#CCCCCC";
+        document.getElementById("table2").style.display="initial";
+    }
+    
+    function searchnews(){
+        document.getElementById("container").style.display="none";
+        document.getElementById("error_inf").style.display = "none";
+        document.getElementById("table1").style.display="none";
+        document.getElementById("table2").style.display="none";
+        document.getElementById("buttonco").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonss").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonc").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonln").style.backgroundColor = "#CCCCCC";
+        document.getElementById("table3").style.display="block";
+    }
+    
+    function searchchart(){
+        document.getElementById("table3").style.display="none";
+        document.getElementById("table1").style.display="none";
+        document.getElementById("table2").style.display="none";
+        document.getElementById("error_inf").style.display = "none";
+        document.getElementById("buttonco").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonss").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonln").style.backgroundColor = "#F8F8F8";
+        document.getElementById("buttonc").style.backgroundColor = "#CCCCCC";
+        document.getElementById("container").style.display="block";
+    }
+    
+    function cleardata(){
+        document.getElementById("stock").value="";
+        document.getElementById("table3").style.display="none";
+        document.getElementById("table1").style.display="none";
+        document.getElementById("table2").style.display="none";
+        document.getElementById("container").style.display="none";
+        document.getElementById("four").style.display="none";
+        document.getElementById("error_inf").style.display = "none";
+    }
+   
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    *,html {margin: 0px; padding: 0px}
+    body {
+        background-color: #6060A4;
+    }
+    
+    .stock_search {
+        background-color: #E8E8E8;
+        margin-left: 450px;
+        margin-top: 50px;
+        width: 850px;
+        height: 225px;
+    }
+    
+    h1 {
+        text-align: center;
+        font-family: sans-serif;
+        font-size: 28px;
+        font-weight: 600;
+        padding-top: 50px;
+    }
+    
+    form{
+        margin-top: 20px;
+        margin-left: 260px
+    }
+    
+    label.enter{
+        font-family: sans-serif;
+        font-size:14px;
+        padding-right: 10px;
+    }
+    
+    input.text1{
+        width: 135px;
+        height: 20px;
+        border-radius: 5px;
+        border: 0px;
+        margin-bottom: 35px;
+        outline: 0px solid black;
+        box-shadow: none;
+    }
+    
+    input.text1:focus {
+        box-shadow: 0 0 0pt 2px black;
+    }
+    
+    input.button1{
+        background: #F8F8F8;
+        width: 90px;
+        height: 30px;
+        border-radius: 5px;
+        margin-left: 50px;
+        border: 0;
+        outline: none;
+        font-size: 13px;
+        box-shadow: none;
+    }
+    
+    input.button1:active {
+        box-shadow: 0 0 0pt 2px black;
+    }
+    
+    input.button1:hover {
+        background: #CCCCCC;
+    }
+    
+    input.button2{
+        background: #F8F8F8;
+        width: 90px;
+        height: 30px;
+        border-radius: 5px;
+        margin-left: 25px;
+        border: 0;
+        outline: none;
+        font-size: 13px;
+    }
+    
+    input.button2:hover {
+        background: #CCCCCC;
+    }
+    
+    input.button2:active {
+        box-shadow: 0 0 0pt 2px black;
+    }
+    
+    hr {
+        color: #E8E8E8;
+        margin-top: 15px;
+        margin-left: 450px;
+        margin-bottom: 15px;
+        width: 850px;
+    }
+    
+    .category {
+        display: none;
+        margin-left: 450px;
+        margin-bottom: 40px;
+        background-color: #F8F8F8;
+        width: 850px;
+        height: 40px;
+    }
+    
+    button.buttons {
+        outline: none;
+        margin-bottom: 10px;
+        margin-right: -5px;
+        width: 160px;
+        height: 40px;
+        font-family: sans-serif;
+        font-size: 14px;
+        font-weight: 300;
+        border: 0;
+        background: #CCCCCC;
+    }
+    
+    button.buttons:hover {
+        background: #DEDEDE !important; 
+    }
+    
+    #table1{
+        display: none;
+        margin-left: 450px;
+        border-collapse: collapse;
+    }
+
+    .td1{
+        border: 1px solid #D4CFCF;
+        font-family: sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        background-color: #E8E6E6;
+        width: 300px;
+        padding-left: 10px;
+    }
+    
+    .td2{
+        font-family: sans-serif;
+        font-size: 14px;
+        font-weight: 200;
+        border: 0;
+        background-color: #FBFBFB;
+        width: 535px;
+        text-align: center;
+        line-height: 20px;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient:vertical;
+        -webkit-line-clamp:5;
+        overflow: hidden;
+        word-wrap: normal;
+    }
+    
+    #table2{
+        display: none;
+        margin-left: 450px;
+        border-collapse: collapse;
+    }
+    
+    #table3{
+        display: none;
+        margin-left: 450px;
+        border-collapse: collapse;
+    }
+    
+    .newspart {
+        display: block;
+        margin-bottom: 15px;
+        background-color: #F1F1F1;
+        width: 835px;
+        height: 85px;
+        padding-left: 15px;
+        padding-top: 10px;
+    }
+    
+    p.newstitle {
+        font-family: sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 90px;
+        margin-top: -75px;
+    }
+    
+    p.newsdate {
+        font-family: sans-serif;
+        font-size: 12px;
+        font-weight: 200;
+        margin-left: 90px;
+        margin-top: 5px;
+    }
+    
+    p.newslink {
+        font-family: sans-serif;
+        font-size: 12px;
+        font-weight: 200;
+        margin-left: 90px;
+        margin-top: 5px;
+    }
+    
+    .hifigure {
+        display: block;
+        height: 350px; 
+        width: 850px;
+        margin-left: 450px;
+        margin-bottom: 20px;
+    }
+    
+    #error_inf {
+        display: none;
+        width: 600px;
+        margin-top: 40px;
+        margin-left: 600px;
+        font-family: sans-serif;
+        font-weight: 600;
+        font-size: 18px;
+    }
+    
+    </style>
+    
+    <title>Stock Search</title>
+    </head>
+
+<body>
+<div class = "stock_search">
+    <h1>Stock Search</h1>
+    <form action="javascript:void(0);">
+        <label class = "enter" for="stock"> 
+            Enter Stock Ticker Symbol<span style="color: red">*</span> </label>
+        <input class="text1" type="text" id="stock" name="stock" required><br>
+        <input class="button1" type="submit" id="search" value="Search" onclick="searchdata()">
+        <input class="button2" type="button" id="clear" value="Clear" onclick="cleardata()">
+    </form>
+    </div>
+    
+<hr>
+    
+    <div id="four" class = "category">
+    <button id="buttonco" class="buttons" onclick="searchoutlook()">Company Outlook</button>
+    <button id="buttonss" class="buttons" onclick="searchstock()">Stock Summary</button>
+    <button id="buttonc" class="buttons" onclick="searchchart()">Charts</button>
+    <button id="buttonln" class="buttons" onclick="searchnews()">Latest News</button>
+    <br>
+    </div>
+<table id = "table1">
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Company Name</td>
+        <td id="companyname" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Stock Ticker Symbol</td>
+        <td id="symbol" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+        <td height=20px class= "td1">Stock Exchange Code</td>
+        <td id="exchangecode" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Company Start Date</td>
+        <td id="startdate" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td class= "td1">Description</td>
+        <td id = "description" class = "td2"></td>
+      </tr>
+</table>
+
+<table id = "table2">
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Stock Ticker Symbol</td>
+        <td id="symbol2" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Trading Day</td>
+        <td id="timestamp" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+        <td height=20px class= "td1">Previous Closing Price</td>
+        <td id="prevclose" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Opening Price</td>
+        <td id="open" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">High Price</td>
+        <td id="high" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Low Price</td>
+        <td id="low" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Last Price</td>
+        <td id="last" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Change</td>
+        <td id="change" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Change Percent</td>
+        <td id="changepercent" class = "td2"></td>
+      </tr>
+      <tr style="background-color: #FBFBFB; border: 1px solid #D4CFCF">
+          <td height=20px class= "td1">Number of Shares Traded</td>
+        <td id="volume" class = "td2"></td>
+      </tr>
+</table>
+
+<div id = "table3">
+    <div id="line0" class = "newspart"><div id="news0"></div>
+    <p id="title0" class = "newstitle"></p>
+    <p id="publishedat0" class = "newsdate"></p>
+    <p id = "link0" class="newslink"></p>
+    </div>
+    
+    <div id="line1" class = "newspart"><div id="news1"></div>
+    <p id="title1" class = "newstitle"></p>
+    <p id="publishedat1" class = "newsdate"></p>
+    <p id = "link1" class="newslink"></p>
+    </div>
+    
+    <div id="line2" class = "newspart"><div id="news2"></div>
+    <p id="title2" class = "newstitle"></p>
+    <p id="publishedat2" class = "newsdate"></p>
+    <p id = "link2" class="newslink"></p>
+    </div>
+    
+    <div id="line3" class = "newspart"><div id="news3"></div>
+    <p id="title3" class = "newstitle"></p>
+    <p id="publishedat3" class = "newsdate"></p>
+    <p id = "link3" class="newslink"></p>
+    </div>
+    
+    <div id="line4" class = "newspart"><div id="news4"></div>
+    <p id="title4" class = "newstitle"></p>
+    <p id="publishedat4" class = "newsdate"></p>
+    <p id = "link4" class="newslink"></p>
+    </div>
+    </div>
+    
+    <div id="container" class="hifigure"></div>
+    
+    <p id="error_inf"> Error: No record has been found, please enter a valid symbol. </p>
+    
+    </body>
+</html>
