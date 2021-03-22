@@ -1,0 +1,25 @@
+<h1 style="text-align: center; color: #333333; font-family: sans-serif; font-weight: bolder; font-size: 4em; line-height: 1.2; margin-top: 1.5em;">
+  STOCK SEARCH</h1>
+<br>
+
+<mat-form-field class="col-md-4 offset-md-4 col-8 offset-2" appearance="outline">
+  <input matInput placeholder="Enter stock ticker"
+         aria-label="Ticker"
+         [(ngModel)]="stockTicker"
+         [matAutocomplete]="auto"
+         [formControl]="candidateCrtl"
+          (keyup)="update()">
+  <a mat-icon-button matSuffix [routerLink]="'details/'+stockTicker"><mat-icon style="font-size: x-large">search</mat-icon></a>
+  <mat-autocomplete #auto="matAutocomplete">
+    <mat-option *ngIf="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </mat-option>
+    <ng-container *ngIf="!loading">
+      <mat-option *ngFor="let candidate_info of candidates" [value]="candidate_info.ticker">
+        <span>{{candidate_info.ticker}}</span> |
+        <small>{{candidate_info.name}}</small>
+      </mat-option>
+    </ng-container>
+  </mat-autocomplete>
+
+</mat-form-field>
