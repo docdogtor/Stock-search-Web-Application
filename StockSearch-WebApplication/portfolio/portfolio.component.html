@@ -1,0 +1,164 @@
+<div class="col-md-10 offset-md-1 col-12 mb-5 mt-5">
+  <h1 class="display-1 font-weight-bolder pl-3" style="font-size: xx-large" > Portfolio </h1>
+</div>
+<ng-template #checkBlock>
+  <div class="col-10 offset-1 mt-lg-5 pt-3 pb-2 text-secondary" style="background-color: #FCF4CF;text-align: center">
+    <p>Currently you don't have any stock.</p>
+  </div>
+</ng-template>
+
+<div *ngIf = "check; else checkBlock">
+  <div *ngIf="listLoading; else listBlock">
+    <div class="row justify-content-center" style="margin-top: 5em">
+      <mat-spinner diameter="80"></mat-spinner>
+    </div>
+  </div>
+  <ng-template #listBlock>
+    <div *ngFor="let ticker of info| keyvalue" class="m-3 offset-md-2">
+    <div>{{change(ticker.value)}}</div>
+    <div class="col-md-10 offset-md-1 col-12">
+      <div class="card" [routerLink]="'../details/'+ticker.key">
+        <div class="card-header pl-2 pt-2 pb-0">
+          <div class="row ml-2"><h1 class="display-1 font-weight-bolder">{{ticker.key|uppercase}}&nbsp;</h1><h2 class="text-secondary">&nbsp;{{ticker.value.name}}</h2></div>
+        </div>
+        <div class="card-body pl-3 pr-3 pt-3 pb-0 mb-0">
+          <blockquote class="blockquote">
+            <div class="row m-0">
+              <div class="col-md-6 mt-1 mb-1">
+
+                <div class="row" style="line-height: 1.3">
+                  <div class="mr-auto">Quantity: </div>
+                  <div class="ml-auto">{{ticker.value.num}}&nbsp;&nbsp;</div>
+                </div>
+
+                <div class="row" style="line-height: 1.3">
+                  <div class="mr-auto" >Avg. Cost/Share: </div>
+                  <div class="ml-auto">{{ticker.value.total/ticker.value.num | number:"1.2-2"}}&nbsp;&nbsp;</div>
+                </div>
+
+                <div class="row" style="line-height: 1.3">
+                  <div class="mr-auto">Total Cost: </div>
+                  <div class="ml-auto">{{ticker.value.total|number:"1.1-1"}}&nbsp;&nbsp;</div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mt-1 mb-1" style="line-height: 1.3">
+                <div class="row">
+                  <div class="mr-auto">Change:</div>
+
+                  <div *ngIf="noChange; else arrowBlock">
+                    <div class="ml-auto" [style]="priceColor">
+                      {{changePrice| number:"1.2-2"}}&nbsp;&nbsp;
+                    </div>
+                  </div>
+                  <ng-template #arrowBlock>
+                    <div class="ml-auto" [style]="priceColor" [hidden]=arrow>
+                      <svg width="0.6em" height="0.6em" viewBox="0 0 16 16" class="bi bi-caret-up-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                      </svg>{{changePrice| number:"1.2-2"}}&nbsp;&nbsp;</div>
+                    <div class="ml-auto" [style]="priceColor" [hidden]=!arrow>
+                      <svg width="0.6em" height="0.6em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                      </svg>{{changePrice| number:"1.2-2"}}&nbsp;&nbsp;</div>
+                  </ng-template>
+                </div>
+
+                <div class="row">
+                  <div class="mr-auto">Current Price:</div>
+                  <div class="ml-auto" [style]=priceColor>{{ticker.value.cp| number:"1.2-2"}}&nbsp;&nbsp;</div>
+                </div>
+
+                <div class="row">
+                  <div class="mr-auto">Current Value:</div>
+                  <div class="ml-auto" [style]=priceColor>{{ticker.value.cp*ticker.value.num| number:"1.1-1"}}&nbsp;&nbsp;</div>
+                </div>
+
+              </div>
+            </div>
+          </blockquote>
+        </div>
+        <div class="card-footer p-0">
+          <ng-template #contentBuy let-modal>
+            <div class="modal-header">
+              <h4 class="modal-title" id="ticker">{{ticker.key|uppercase}}</h4>
+              <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <p>Current Price: {{ticker.value.cp| number:"1.2-2"}}</p>
+                  <div class="input-group">
+                    <label class="mr-2 mt-2 mb-2 ml-0">Quantity: </label>
+                    <input id= "buybuy" name="quantity" class="form-control col-3" [(ngModel)]="stockNum" type="number" placeholder="0">
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <div class="mr-auto">Total: {{ticker.value.cp*stockNum|number:"1.2-2"}}</div>
+              <div *ngIf="stockNum>0; else elseBlock">
+                <button type="button" class="btn btn-success" (click)="modal.close('Save click'); update(); addNum(ticker.key)">Buy</button>
+              </div>
+              <ng-template #elseBlock>
+                <button type="button" class="btn btn-success" disabled>Buy</button>
+              </ng-template>
+            </div>
+          </ng-template>
+          <ng-template #contentSell let-modal>
+            <div class="modal-header">
+              <h4 class="modal-title" id="tickersell">{{ticker.key|uppercase}}</h4>
+              <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <p>Current Price: {{ticker.value.cp| number:"1.2-2"}}</p>
+                  <div class="input-group">
+                    <label class="mr-2 mt-2 mb-2 ml-0">Quantity: </label>
+                    <input name="quantity" class="form-control col-3" [(ngModel)]="sellNum" type="number" placeholder="0">
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <div class="mr-auto">Total: {{ticker.value.cp*sellNum|number:"1.2-2"}}</div>
+              <div *ngIf="sellNum > 0 && sellNum<= ticker.value.num; else elseBlockSell">
+                <button type="button" class="btn btn-success" (click)="modal.close('Save click'); update(); minusNum(ticker.key)">Sell</button>
+              </div>
+              <ng-template #elseBlockSell>
+                <button type="button" class="btn btn-success" disabled>Sell</button>
+              </ng-template>
+            </div>
+          </ng-template>
+          <div class="row float-right p-2">
+            <div class="p-2">
+              <div *ngIf="closed; else buyButton">
+                <button type="button" class="btn btn-primary" disabled>Buy</button>
+              </div>
+              <ng-template #buyButton>
+                <button type="button" class="btn btn-primary" (click)="$event.stopPropagation(); update(); open(contentBuy)">Buy</button>
+              </ng-template>
+            </div>
+            <div class="p-2 mr-3">
+              <div *ngIf="closed; else sellButton">
+                <button type="button" class="btn btn-danger" disabled>Sell</button>
+              </div>
+              <ng-template #sellButton>
+                <button type="button" class="btn btn-danger" (click)="$event.stopPropagation(); update(); open(contentSell)">Sell</button>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </ng-template>
+</div>
+
+<!--<div class="p-3 align-self-center" style="background-color: #DDDDDD; bottom: 0; position: fixed; right: 0; left: 0">-->
+<!--  <p class="mb-0 text-secondary" style="text-align: center">Powered by Tiingo. Developed by An Xin.</p>-->
+<!--</div>-->
