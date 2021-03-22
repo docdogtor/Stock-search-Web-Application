@@ -1,0 +1,12 @@
+<div *ngIf="loading; else elseBlock">
+</div>
+<ng-template #elseBlock>
+<p class="text-secondary" style="text-align: center; margin-top: 1rem">{{parentTicker|uppercase}}</p>
+<highcharts-chart
+    [Highcharts]="Highcharts"
+    [options]="chartOptions"
+    [constructorType]="'stockChart'"
+    style="display: block; padding: 1em;"
+>
+</highcharts-chart>
+</ng-template>
