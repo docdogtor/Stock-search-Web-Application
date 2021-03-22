@@ -1,0 +1,36 @@
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="ticker">{{parentTicker|uppercase}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <p>Current Price: {{currPrice|number:"1.2-2"}}</p>
+        <div class="input-group">
+          <label class="mr-2 mt-2 mb-2 ml-0">Quantity:</label>
+          <input class="form-control col-4" name="quantity" [(ngModel)]="stockNum" type="number" placeholder="0">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <div class="mr-auto">Total: {{total()|number:"1.2-2"}}</div>
+    <div *ngIf="stockNum>0; else elseBlock">
+      <button type="button" class="btn btn-success" (click)="modal.close('Save click');addNum()">Buy</button>
+    </div>
+    <ng-template #elseBlock>
+      <button type="button" class="btn btn-success" disabled>Buy</button>
+    </ng-template>
+  </div>
+</ng-template>
+
+<div *ngIf="closed; else buyButton">
+  <button type="button" class="btn btn-success" disabled>Buy</button>
+</div>
+
+<ng-template #buyButton>
+  <button type="button" class="btn btn-success" (click)="open(content)">Buy</button>
+</ng-template>
