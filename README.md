@@ -1,7 +1,7 @@
 # Stock-search-Web-Application
-<ol>
+<oi>
 Built a static web page using HTML, CSS, JavaScript, DOM, JSON format and XMLHttpRequest object.
-  </ol>
+  </oi>
 <ol>
 Implemented the backend using Python Flask in the cloud on Google Cloud Platform (GCP). Developed a stock-searching web application (https://stock-search-axin-app.wl.r.appspot.com) based on Angular, HTML, Bootstrap, AJAX, and Node.js.
   </ol>
