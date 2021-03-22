@@ -1,0 +1,65 @@
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-5 card m-3 bg-light" *ngFor="let article of newArticle; index as i">
+      <ng-template #content let-modal>
+        <div class="modal-header h-25" style="font-family: Arial, Helvetica, sans-serif">
+          <div class="modal-title mt-lg-3 ">
+            <h1 class="font-weight-bold" style="line-height: 0">{{article.source.name}}</h1>
+            <p class="text-secondary">{{article.publishedAt|date:"MMMM dd, yyyy"}}</p>
+          </div>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <h2 style="line-height: 1.15">{{article.title}}</h2>
+              <p style="margin-top: 0" [innerHTML]="article.description"></p>
+              <p class="text-secondary">For more details click <a [href]=article.url target ="_blank">here</a></p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <div class="col-12 card p-0">
+            <div class="col-12 card-body">
+              <blockquote class="blockquote mb-0">
+                <p>Share</p>
+                <div class="row">
+                  <a class="col-1 twitter-share-button"
+                     href="{{'https://twitter.com/intent/tweet?text=' + article.title + '&url=' + article.url}}"
+                     target="_blank">
+                    <svg width="30" height="30" fill="#1DA1F2" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M23.954 4.569c-.885.389-1.83.654-2.825.775 1.014-.611 1.794-1.574 2.163-2.723-.951.555-2.005.959-3.127 1.184-.896-.959-2.173-1.559-3.591-1.559-2.717 0-4.92 2.203-4.92 4.917 0 .39.045.765.127 1.124C7.691 8.094 4.066 6.13 1.64 3.161c-.427.722-.666 1.561-.666 2.475 0 1.71.87 3.213 2.188 4.096-.807-.026-1.566-.248-2.228-.616v.061c0 2.385 1.693 4.374 3.946 4.827-.413.111-.849.171-1.296.171-.314 0-.615-.03-.916-.086.631 1.953 2.445 3.377 4.604 3.417-1.68 1.319-3.809 2.105-6.102 2.105-.39 0-.779-.023-1.17-.067 2.189 1.394 4.768 2.209 7.557 2.209 9.054 0 13.999-7.496 13.999-13.986 0-.209 0-.42-.015-.63.961-.689 1.8-1.56 2.46-2.548l-.047-.02z"/>
+                    </svg>
+                  </a>
+                  <a class="col-1 fb-share-button"
+                     href="{{'https://www.facebook.com/sharer/sharer.php?u=' + article.url}}"
+                     target="_blank">
+                    <svg width="30" height="30" xmlns="http://www.w3.org/2000/svg" fill="blue">
+                      <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/>
+                    </svg>
+                  </a>
+                </div>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="row justify-content-between" (click)="open(content)">
+        <div class="col-lg-4 mt-2 mb-2" style="text-align: center" >
+          <img class="card-img m-0 w-100" [src]=article.urlToImage onerror="this.src='https://www.teknozeka.com/wp-content/uploads/2020/08/wp-header-logo.png'">
+        </div>
+        <mat-card-content class="col-lg-8 ml-0 mt-2" style="text-align: left">
+          <p  style="font-size: small; font-weight: lighter; text-overflow: ellipsis; display: -webkit-box;
+          -webkit-box-orient: vertical; -webkit-line-clamp:3; text-align: left;
+          overflow: hidden; word-wrap: normal;">
+            {{article.title}}
+          </p>
+        </mat-card-content>
+      </div>
+    </div>
+  </div>
+</div>
+
