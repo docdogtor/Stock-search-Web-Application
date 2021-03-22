@@ -1,0 +1,182 @@
+<div *ngIf="check; else checkBlock">
+  <div *ngIf="counter < 5; else elseBlock">
+  <div class="row justify-content-center" style="margin-top: 5em">
+    <mat-spinner diameter="80"></mat-spinner>
+  </div>
+  </div>
+</div>
+<ng-template #elseBlock>
+  <div class="container">
+    <div [hidden] = "!isSummary">
+      <div *ngIf="!isReported; else reportBlock"></div>
+      <ng-template #reportBlock>
+        <div *ngIf="!isClicked; else reportBlock2">
+          <div class="col-12 justify-content-center" style="text-align: center">
+          <ngb-alert [hidden]="closeReport1" type="success" (close)="forceClose1()"> {{ticker| uppercase}} added to Watchlist. </ngb-alert>
+          </div>
+        </div>
+        <ng-template #reportBlock2>
+          <div class="col-12 justify-content-center" style="text-align: center">
+          <ngb-alert [hidden]="closeReport2" type="danger" (close)="forceClose2()"> {{ticker| uppercase}} removed from Watchlist. </ngb-alert>
+          </div>
+        </ng-template>
+      </ng-template>
+      <div *ngIf="buyReport">
+        <div class="col-12 justify-content-center" style="text-align: center">
+          <ngb-alert [hidden]="closeReport3" type="success" (close)="forceClose3()"> {{ticker| uppercase}} bought successfully! </ngb-alert>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-6 pl-4">
+          <h1 style="line-height: 1; font-family: sans-serif; font-size: xx-large; font-weight: bolder">{{ticker| uppercase}}
+            <svg (click)="onClick()" *ngIf="isClicked" width="1em" height="1em" viewBox="0 0 25 25" class="bi bi-star" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.523-3.356c.329-.314.158-.888-.283-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767l-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288l1.847-3.658 1.846 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.564.564 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+            </svg>
+            <svg (click)="onClick()" *ngIf="!isClicked" width="1em" height="1em" viewBox="0 0 25 25" class="bi bi-star-fill" fill="#F7D748" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.283.95l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+            </svg>
+          </h1>
+        </div>
+        <div class="col-6 pr-4" [style]=priceColor>
+          <h1 style="line-height: 1; font-family: sans-serif; font-size: xx-large; font-weight: bolder">{{lastPrice| number:"1.2-2"}}</h1>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-6 pl-4">
+          <h2 style="line-height: 1; color: #6E757C">{{name}}</h2>
+        </div>
+        <div class="col-6 pr-4" [style]=priceColor>
+          <div *ngIf="noChange; else arrowBlock">
+            <h2 style="line-height: 1">
+              {{change| number:"1.2-2"}}({{changePercent| number:"1.2-2"}}%)
+            </h2>
+          </div>
+          <ng-template #arrowBlock>
+            <h2 style="line-height: 1" [hidden]=arrow>
+              <svg width="0.6em" height="0.6em" viewBox="0 0 16 16"  class="bi bi-caret-up-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+              </svg>{{change| number:"1.2-2"}}({{changePercent| number:"1.2-2"}}%)</h2>
+            <h2 style="line-height: 1" [hidden]=!arrow>
+              <svg width="0.6em" height="0.6em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+              </svg>{{change| number:"1.2-2"}}({{changePercent| number:"1.2-2"}}%)</h2>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-6 pl-4">
+          <p style="line-height: 1" class="text-secondary">{{company_info.exchangeCode}}</p>
+        </div>
+        <div class="col-6 pr-4" [style]=priceColor>
+          <p style="line-height: 1rem" class="text-secondary">{{currTime|date:"yyyy-MM-dd hh:mm:ss"}}</p>
+        </div>
+      </div>
+
+      <div class="pl-2 mb-3 mt-0">
+        <app-buy (bought)="buyReport=$event" (report)="closeReport3=$event" [parentTicker] = ticker [parentName] = name [currPrice] = lastPrice [prevPrice] = prevClose [closed] = isClose></app-buy>
+      </div>
+
+      <div style="text-align: center" class="mt-3 border-0" [hidden]=!isClose>
+        <mark style="background-color: #F0D8D9; color: darkred">Market Closed on {{stamTime|date:"yyyy-MM-dd HH:mm:ss"}}
+        </mark>
+      </div>
+
+      <div style="text-align: center" class="mt-3 border-0" [hidden]=isClose>
+        <mark style="background-color: #DBECDB; color: darkgreen">Market is Open</mark>
+      </div>
+    </div>
+
+    <div class="col-12 mt-2">
+      <mat-tab-group mat-stretch-tabs (selectedTabChange)="tabClick($event)">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <span>Summary</span>
+          </ng-template>
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="col-10 offset-1 mt-4" [hidden]=!isClose>
+                <table style="text-align: left; width: fit-content">
+                  <tr><td>High Price:</td><td>{{price_info.high}}</td></tr>
+                  <tr><td>Low Price:</td><td>{{price_info.low}}</td></tr>
+                  <tr><td>Open Price:</td><td>{{price_info.open}}</td></tr>
+                  <tr><td>Prev. Close:</td><td>{{price_info.prevClose}}</td></tr>
+                  <tr><td>Volume:</td><td>{{price_info.volume}}</td></tr>
+                </table>
+              </div>
+
+              <div class="col-md-10 offset-md-1 col-12 mt-4" [hidden]=isClose>
+                <table style="text-align: left; width: fit-content">
+                <tr>
+                  <td>High Price:</td><td>{{price_info.high}}</td>
+                  <td>&nbsp;&nbsp;&nbsp;Mid Price:</td><td>{{price_info.mid}}</td>
+                </tr>
+                <tr>
+                  <td>Low Price:</td><td>{{price_info.low}}</td>
+                  <td>&nbsp;&nbsp;&nbsp;Ask Price:</td><td>{{price_info.askPrice}}</td>
+                </tr>
+                <tr>
+                  <td>Open Price:</td><td>{{price_info.open}}</td>
+                  <td>&nbsp;&nbsp;&nbsp;Ask Size:</td><td>{{price_info.askSize}}</td>
+                </tr>
+                <tr>
+                  <td>Prev. Close:</td><td>{{price_info.prevClose}}</td>
+                  <td>&nbsp;&nbsp;&nbsp;Bid Price:</td><td>{{price_info.bidPrice}}</td>
+                </tr>
+                <tr>
+                  <td>Volume:</td><td>{{price_info.volume}}</td>
+                  <td>&nbsp;&nbsp;&nbsp;Bid Size:</td><td>{{price_info.bidSize}}</td>
+                </tr>
+                </table>
+              </div>
+
+              <div class="col p-0">
+                <h3 class="mt-4 font-weight-bold" style="text-align: center;" >Company's Description</h3>
+                <p class="mt-1 text-secondary">Start Date: {{company_info.startDate|date:"yyyy-MM-dd"}}
+                <p class="mt-0 text-secondary" style="text-align: justify">{{company_info.description}}</p>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+                <app-daily-chart (chartLoading)="chartLoading=$event" [parentTicker]="ticker" [parentDown] = "arrow"></app-daily-chart>
+            </div>
+
+          </div>
+
+        </mat-tab>
+
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <span>Top News</span>
+          </ng-template>
+          <app-news-cards (newsLoading)="newsLoading=$event" [parentTicker]="ticker"></app-news-cards>
+        </mat-tab>
+
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <span>Charts</span>
+          </ng-template>
+          <ng-template matTabContent>
+            <app-big-chart [parentData] = "chartData" [parentTicker] = "ticker"></app-big-chart>
+          </ng-template>
+        </mat-tab>
+
+      </mat-tab-group>
+    </div>
+
+  </div>
+<!--  <div class="p-3 align-self-center" style="background-color: #DDDDDD; bottom: 0; position: relative; right: 0; left: 0">-->
+<!--    <p class="mb-0 text-secondary" style="text-align: center">Powered by Tiingo. Developed by An Xin.</p>-->
+<!--  </div>-->
+</ng-template>
+
+<ng-template #checkBlock>
+  <div class="col-md-8 offset-md-2 col-10 offset-1 mt-lg-5 pt-3 pb-2 text-secondary" style="background-color: #F0D8D9;text-align: center">
+    <p>No results found. Please enter valid Ticker.</p></div>
+  <div class="p-3 align-self-center" style="background-color: #DDDDDD; bottom: 0; position: absolute; right: 0; left: 0">
+    <p class="mb-0 text-secondary" style="text-align: center">Powered by Tiingo. Developed by An Xin.</p>
+  </div>
+</ng-template>
